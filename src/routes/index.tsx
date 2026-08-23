@@ -104,23 +104,26 @@ function App() {
       .order("created_at", { ascending: false });
     if (error) return setError(error.message);
     setExams(
-      (data ?? []).map((p: any) => ({
-        ...p,
-        questions: (p.questoes ?? [])
-          .sort((a: any, b: any) => a.position - b.position)
-          .map((q: any) => ({
-            id: q.id,
-            position: q.position,
-            q: q.pergunta,
-            a: q.alternativas,
-            correct: q.resposta_correta,
-            hint: q.dica,
-          })),
-        lastAttempt: [...(p.simulados ?? [])].sort(
-          (a: Attempt, b: Attempt) =>
-            new Date(b.completed_at).getTime() - new Date(a.completed_at).getTime(),
-        )[0],
-      })),
+      (data ?? [])
+        // Admins manage other users' exams in the Admin panel, not in their personal library.
+        .filter((p: any) => p.is_system || p.owner_id === user)
+        .map((p: any) => ({
+          ...p,
+          questions: (p.questoes ?? [])
+            .sort((a: any, b: any) => a.position - b.position)
+            .map((q: any) => ({
+              id: q.id,
+              position: q.position,
+              q: q.pergunta,
+              a: q.alternativas,
+              correct: q.resposta_correta,
+              hint: q.dica,
+            })),
+          lastAttempt: [...(p.simulados ?? [])].sort(
+            (a: Attempt, b: Attempt) =>
+              new Date(b.completed_at).getTime() - new Date(a.completed_at).getTime(),
+          )[0],
+        })),
     );
   };
   useEffect(() => {
