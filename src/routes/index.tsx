@@ -508,7 +508,7 @@ function Home({ exams, user, create, edit, start, history, materials, remove }: 
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
               Copie o texto, informe o conteúdo desejado ao notebook LLM e depois cole o JSON gerado em uma
-              nova prova. Antes disso, o notebook LLM deve ser alimentado com o PDF contendo o material de estudos.
+              nova prova. Antes disso, o notebook LLM deve ser alimentado com o PDF contendo o material de estudos. #
             </p>
             <textarea
               readOnly
