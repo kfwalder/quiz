@@ -1267,6 +1267,9 @@ function Materials({
     [saving, setSaving] = useState(false),
     [uploadedCount, setUploadedCount] = useState(0),
     [generatingId, setGeneratingId] = useState<string | null>(null),
+    [generatingProgress, setGeneratingProgress] = useState<{ current: number; total: number } | null>(
+      null,
+    ),
     [deletingId, setDeletingId] = useState<string | null>(null),
     [draggedPageId, setDraggedPageId] = useState<string | null>(null),
     [dropTargetId, setDropTargetId] = useState<string | null>(null),
@@ -1471,6 +1474,7 @@ function Materials({
   const generatePdf = async (material: Material) => {
     if (!material.pages.length) return;
     setGeneratingId(material.id);
+    setGeneratingProgress({ current: 0, total: material.pages.length });
     setStatus("");
     try {
       const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
@@ -1485,6 +1489,7 @@ function Materials({
         const width = image.width * scale;
         const height = image.height * scale;
         pdf.addImage(image.dataUrl, "JPEG", (210 - width) / 2, (297 - height) / 2, width, height);
+        setGeneratingProgress({ current: index + 1, total: material.pages.length });
       }
       const filename = material.name.replace(/[^a-zA-Z0-9_-]/g, "-") || "material";
       pdf.save(`${filename}.pdf`);
@@ -1493,6 +1498,7 @@ function Materials({
       setStatus(error instanceof Error ? error.message : "Não foi possível gerar o PDF.");
     } finally {
       setGeneratingId(null);
+      setGeneratingProgress(null);
     }
   };
 
@@ -1588,6 +1594,36 @@ function Materials({
       transform: `rotate(${zoomedPage.rotation}deg)`,
     };
   })();
+
+  const pdfGeneratingOverlay = generatingProgress && (
+    <div
+      className="fixed inset-0 z-[70] grid place-items-center bg-slate-950/45 p-4 backdrop-blur-sm"
+      role="status"
+      aria-live="polite"
+      aria-label="Gerando PDF"
+    >
+      <div className="w-full max-w-sm rounded-3xl bg-card p-6 text-center shadow-2xl">
+        <div className="mx-auto h-11 w-11 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
+        <h3 className="mt-4 text-xl font-bold">Gerando seu PDF</h3>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Preparando página {generatingProgress.current} de {generatingProgress.total}.
+        </p>
+        <div
+          className="mt-4 h-3 overflow-hidden rounded-full bg-muted"
+          role="progressbar"
+          aria-valuemin={0}
+          aria-valuemax={generatingProgress.total}
+          aria-valuenow={generatingProgress.current}
+          aria-label="Progresso da geração do PDF"
+        >
+          <div
+            className="h-full rounded-full bg-primary transition-[width] duration-300"
+            style={{ width: `${(generatingProgress.current / generatingProgress.total) * 100}%` }}
+          />
+        </div>
+      </div>
+    </div>
+  );
 
   if (selected) {
     return (
@@ -1917,6 +1953,7 @@ function Materials({
             </section>
           </div>
         )}
+        {pdfGeneratingOverlay}
       </section>
     );
   }
@@ -2093,6 +2130,7 @@ function Materials({
           {status}
         </p>
       )}
+      {pdfGeneratingOverlay}
     </section>
   );
 }
