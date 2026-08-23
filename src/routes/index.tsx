@@ -1091,8 +1091,9 @@ function History({
 function AdminPanel({ back, setError }: { back: () => void; setError: (message: string) => void }) {
   const [users, setUsers] = useState<any[]>([]),
     [allExams, setAllExams] = useState<any[]>([]),
-    [allAttempts, setAllAttempts] = useState<any[]>([]);
-  const emailByUserId = new Map(users.map((profile) => [profile.id, profile.email]));
+    [allAttempts, setAllAttempts] = useState<any[]>([]),
+    [expandedUserId, setExpandedUserId] = useState<string | null>(null),
+    [showSystemExams, setShowSystemExams] = useState(false);
   const statsByExam = new Map<string, { count: number; last?: any }>();
   for (const attempt of allAttempts) {
     if (!attempt.prova_id) continue;
@@ -1109,7 +1110,9 @@ function AdminPanel({ back, setError }: { back: () => void; setError: (message: 
         .from("provas")
         .select("id, name, emoji, owner_id, is_system, created_at")
         .order("created_at", { ascending: false }),
-      supabase!.from("simulados").select("prova_id, correct_count, total_questions, completed_at"),
+      supabase!
+        .from("simulados")
+        .select("user_id, prova_id, correct_count, total_questions, completed_at"),
     ]);
     const error = profiles.error || exams.error || attempts.error;
     if (error) setError(error.message);
@@ -1138,6 +1141,44 @@ function AdminPanel({ back, setError }: { back: () => void; setError: (message: 
     if (error) setError(error.message);
     else void loadAdminData();
   };
+  const renderExam = (exam: any) => {
+    const stats = statsByExam.get(exam.id);
+    const lastScore = stats?.last
+      ? Math.round((stats.last.correct_count / stats.last.total_questions) * 100)
+      : null;
+    return (
+      <div
+        key={exam.id}
+        className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-card p-3"
+      >
+        <span>
+          <b>
+            {exam.emoji} {exam.name}
+          </b>
+          <span className="mt-1 block text-sm text-muted-foreground">
+            {stats?.count ?? 0} simulados · {lastScore === null ? "sem nota" : `última nota: ${lastScore}%`}
+          </span>
+        </span>
+        <span className="flex gap-2">
+          {!exam.is_system && (
+            <button
+              onClick={() => void publish(exam)}
+              className="rounded-lg border px-3 py-1 text-sm"
+            >
+              Tornar global
+            </button>
+          )}
+          <button
+            onClick={() => void remove(exam)}
+            className="rounded-lg border border-destructive px-3 py-1 text-sm text-destructive"
+          >
+            Excluir
+          </button>
+        </span>
+      </div>
+    );
+  };
+  const systemExams = allExams.filter((exam) => exam.is_system);
   return (
     <section className={box}>
       <button onClick={back} className="underline">
@@ -1160,63 +1201,60 @@ function AdminPanel({ back, setError }: { back: () => void; setError: (message: 
       </div>
       <h3 className="mt-8 text-lg font-bold">Usuários</h3>
       <div className="mt-2 space-y-2">
-        {users.map((profile) => (
-          <div key={profile.id} className="rounded-xl border p-3">
-            <b>{profile.email}</b>
-            <span className="ml-2 text-sm text-muted-foreground">{profile.role}</span>
-          </div>
-        ))}
-      </div>
-      <h3 className="mt-8 text-lg font-bold">Provas</h3>
-      <div className="mt-2 space-y-2">
-        {allExams.map((exam) => {
-          const stats = statsByExam.get(exam.id);
-          const lastScore = stats?.last
-            ? Math.round((stats.last.correct_count / stats.last.total_questions) * 100)
-            : null;
+        {users.map((profile) => {
+          const userExams = allExams.filter((exam) => exam.owner_id === profile.id);
+          const userAttemptCount = allAttempts.filter((attempt) => attempt.user_id === profile.id).length;
+          const isExpanded = expandedUserId === profile.id;
           return (
-            <div
-              key={exam.id}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-xl border p-3"
-            >
-              <span>
-                <b>
-                  {exam.emoji} {exam.name}
-                </b>{" "}
-                <span className="text-sm text-muted-foreground">
-                  {exam.is_system ? "global" : "privada"}
-                </span>
-                <span className="mt-1 block text-sm text-muted-foreground">
-                  Criada por:{" "}
-                  {exam.is_system
-                    ? "Sistema"
-                    : (emailByUserId.get(exam.owner_id) ?? "Usuário removido")}
-                </span>
-                <span className="mt-1 block text-sm text-muted-foreground">
-                  {stats?.count ?? 0} simulados ·{" "}
-                  {lastScore === null ? "sem nota" : `última nota: ${lastScore}%`}
-                </span>
-              </span>
-              <span className="flex gap-2">
-                {!exam.is_system && (
-                  <button
-                    onClick={() => void publish(exam)}
-                    className="rounded-lg border px-3 py-1 text-sm"
-                  >
-                    Tornar global
-                  </button>
-                )}
+            <article key={profile.id} className="rounded-2xl border p-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <b>{profile.email}</b>
+                  <span className="ml-2 text-sm text-muted-foreground">{profile.role}</span>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {userExams.length} prova(s) · {userAttemptCount} simulado(s) realizado(s)
+                  </p>
+                </div>
                 <button
-                  onClick={() => void remove(exam)}
-                  className="rounded-lg border border-destructive px-3 py-1 text-sm text-destructive"
+                  type="button"
+                  aria-expanded={isExpanded}
+                  onClick={() =>
+                    setExpandedUserId((current) => (current === profile.id ? null : profile.id))
+                  }
+                  className="rounded-lg border px-3 py-2 text-sm font-bold transition hover:bg-muted"
                 >
-                  Excluir
+                  {isExpanded ? "Ocultar provas" : `Ver provas (${userExams.length})`}
                 </button>
-              </span>
-            </div>
+              </div>
+              {isExpanded && (
+                <div className="mt-4 space-y-2 border-t pt-4">
+                  {userExams.length ? (
+                    userExams.map(renderExam)
+                  ) : (
+                    <p className="text-sm text-muted-foreground">Nenhuma prova criada.</p>
+                  )}
+                </div>
+              )}
+            </article>
           );
         })}
       </div>
+      {systemExams.length > 0 && (
+        <section className="mt-8">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h3 className="text-lg font-bold">Provas globais</h3>
+            <button
+              type="button"
+              aria-expanded={showSystemExams}
+              onClick={() => setShowSystemExams((current) => !current)}
+              className="rounded-lg border px-3 py-2 text-sm font-bold transition hover:bg-muted"
+            >
+              {showSystemExams ? "Ocultar provas" : `Ver provas (${systemExams.length})`}
+            </button>
+          </div>
+          {showSystemExams && <div className="mt-3 space-y-2">{systemExams.map(renderExam)}</div>}
+        </section>
+      )}
     </section>
   );
 }
