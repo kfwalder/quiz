@@ -74,6 +74,25 @@ Na central, use **Gerar PDF de material** para criar um conjunto, ordenar as ima
 
 As migrações mais recentes também impedem o compartilhamento de provas globais (`20260823133000_impedir_compartilhamento_prova_global.sql`) e permitem que administradores editem provas globais (`20260823143000_admin_editar_prova_global.sql`).
 
+## Atualizar o schema SQL
+
+O arquivo `supabase/schema.sql` é uma fotografia do schema remoto atual, com tabelas, funções e políticas. Abra o Docker Desktop antes de executar o dump, pois o Supabase CLI usa o Docker para rodar o `pg_dump`.
+
+Vincule o projeto somente na primeira vez:
+
+```bash
+npx supabase login
+npx supabase link --project-ref knkbkuhqepuoumokckam
+```
+
+Para criar ou atualizar o arquivo de schema:
+
+```bash
+npx supabase db dump --linked -f supabase/schema.sql
+```
+
+Revise o resultado com `git diff -- supabase/schema.sql` antes de versioná-lo. O dump não inclui dados, usuários do Auth, configurações de autenticação nem objetos do Storage; mantenha as migrações para esses recursos.
+
 ## JSON de importação
 
 ```json
