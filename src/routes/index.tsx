@@ -57,7 +57,9 @@ const date = (value: string) =>
   new Intl.DateTimeFormat("pt-BR", { dateStyle: "medium", timeStyle: "short" }).format(
     new Date(value),
   );
-const localNetworkUrl = import.meta.env.VITE_LOCAL_NETWORK_URL || __LOCAL_NETWORK_URL__;
+const localNetworkUrl = import.meta.env.DEV
+  ? import.meta.env.VITE_LOCAL_NETWORK_URL || __LOCAL_NETWORK_URL__
+  : "";
 const emojiOptions = ["📝", "🌍", "🏛️", "🔢", "📚", "🔬", "💻", "⚖️", "🩺", "🎨"];
 
 function suggestExamEmoji(name: string) {
@@ -144,8 +146,9 @@ function App() {
         <div className={box}>
           <b>Configure o Supabase</b>
           <p className="mt-2">
-            Copie <code>.env.example</code> para <code>.env.local</code>, preencha as credenciais e
-            reinicie o servidor.
+            {import.meta.env.PROD
+              ? "Configure VITE_SUPABASE_URL e VITE_SUPABASE_PUBLISHABLE_KEY nas variaveis de build do Cloudflare e publique novamente."
+              : "Copie .env.example para .env.local, preencha as credenciais e reinicie o servidor."}
           </p>
         </div>
       </main>

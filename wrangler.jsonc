@@ -3,6 +3,7 @@
   "name": "quiz",
   "compatibility_date": "2025-09-24",
   "compatibility_flags": ["nodejs_compat"],
+  "keep_vars": true,
   "main": "dist/server/server.js",
   "assets": {
     "directory": "dist/client"

@@ -19,6 +19,19 @@ Para a confirmação por e-mail funcionar em outro dispositivo da rede, abra **A
 
 O seed lê as 40 perguntas existentes em `src/data/quiz-geografia.ts` e cria ou atualiza a prova global **Prova de Geografia**. Nunca exponha `SUPABASE_SERVICE_ROLE_KEY` no navegador ou em um repositório.
 
+## Deploy no Cloudflare
+
+No painel do Cloudflare, adicione estas variaveis em **Workers & Pages > quiz > Settings > Builds > Build variables** antes do proximo deploy:
+
+```text
+VITE_SUPABASE_URL=https://SEU-PROJETO.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=sua_chave_publica_do_supabase
+```
+
+Elas sao valores publicos usados pelo navegador e precisam existir durante `npm run build`; adiciona-las apenas em **Runtime variables and secrets** nao as inclui no bundle da aplicacao. Se algum endpoint de servidor vier a usar `SUPABASE_SERVICE_ROLE_KEY`, cadastre-a somente como **Secret** em runtime e nunca use o prefixo `VITE_`.
+
+O `wrangler.jsonc` usa `keep_vars: true`, portanto os proximos `wrangler deploy` preservam as variaveis e secrets configurados no Dashboard. As duas variaveis `VITE_*` que ja foram removidas precisam ser cadastradas novamente no ambiente de build uma vez.
+
 Ao enviar uma prova, o e-mail do destinatário é salvo na tabela `amigos` da conta que enviou. O destinatário precisa continuar previamente cadastrado; a aplicação valida isso a cada novo compartilhamento.
 
 ## Materiais em PDF
