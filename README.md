@@ -2,6 +2,38 @@
 
 Aplicação de provas, simulados e histórico por usuário, construída com React, TanStack Start e Supabase.
 
+## Telas da aplicação
+
+### Central de provas
+
+Crie, inicie e acompanhe provas globais ou particulares, com a nota do último simulado em cada card.
+
+![Central de provas](prints_app/print1.png)
+
+### Simulado interativo
+
+Responda uma questão por vez, receba dicas e comemore os acertos com confetes.
+
+![Simulado com confetes](prints_app/print2.png)
+
+### Painel administrativo
+
+Acompanhe usuários, totais de provas e simulados, além das provas globais da aplicação.
+
+![Painel administrativo](prints_app/print3.png)
+
+### Materiais em PDF
+
+Crie conjuntos de imagens, organize as páginas e gere um PDF para download.
+
+![Lista de materiais em PDF](prints_app/print4.png)
+
+### Organização de páginas
+
+Reordene páginas por arrastar e soltar ou pelo número de página, com rotação e revisão visual.
+
+![Organização de páginas do material](prints_app/print5.png)
+
 ## Configuração local
 
 1. Crie um projeto em [Supabase](https://supabase.com) e habilite o provedor **Email** em Authentication.
