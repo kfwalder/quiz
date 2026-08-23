@@ -879,6 +879,24 @@ function Quiz({ exam, user, done, exit, setError }: any) {
     [result, setResult] = useState<{ correct: number; total: number } | null>(null);
   const savingRef = useRef(false);
   const q = qs[i];
+  useEffect(() => {
+    if (!result || (result.correct / result.total) * 100 < 80) return;
+
+    const celebrationEndsAt = Date.now() + 5_000;
+    const timer = window.setInterval(() => {
+      if (Date.now() >= celebrationEndsAt) {
+        window.clearInterval(timer);
+        return;
+      }
+      confetti({
+        particleCount: 28,
+        spread: 70,
+        startVelocity: 28,
+        origin: { x: Math.random(), y: 0.15 },
+      });
+    }, 280);
+    return () => window.clearInterval(timer);
+  }, [result]);
   const celebrateCorrectAnswer = () => {
     const options = { particleCount: 55, spread: 65, startVelocity: 35, origin: { y: 0.72 } };
     confetti({ ...options, angle: 60, origin: { x: 0, y: 0.72 } });
