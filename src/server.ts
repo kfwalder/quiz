@@ -21,7 +21,26 @@ async function getServerEntry(): Promise<ServerEntry> {
 function brandedErrorResponse(): Response {
   return new Response(renderErrorPage(), {
     status: 500,
-    headers: { "content-type": "text/html; charset=utf-8" },
+    headers: {
+      "content-type": "text/html; charset=utf-8",
+      "cache-control": "no-store",
+    },
+  });
+}
+
+function preventHtmlCaching(request: Request, response: Response): Response {
+  const contentType = response.headers.get("content-type") ?? "";
+  if (request.method !== "GET" || !contentType.includes("text/html")) {
+    return response;
+  }
+
+  // HTML points at hashed assets, so it must always be fresh after a deployment.
+  const headers = new Headers(response.headers);
+  headers.set("cache-control", "no-store");
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
   });
 }
 
@@ -71,7 +90,7 @@ export default {
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
-      return await normalizeCatastrophicSsrResponse(response);
+      return preventHtmlCaching(request, await normalizeCatastrophicSsrResponse(response));
     } catch (error) {
       console.error(error);
       return brandedErrorResponse();
