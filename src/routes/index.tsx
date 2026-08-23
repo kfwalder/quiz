@@ -683,7 +683,7 @@ function SendExamModal({ exam, onClose }: { exam: Exam; onClose: () => void }) {
   );
 }
 
-function Editor({ exam, done, cancel, setError }: any) {
+function Editor({ exam, done, cancel, setError, editSystemExam = false }: any) {
   const [name, setName] = useState(exam?.name ?? ""),
     [emoji, setEmoji] = useState(exam?.emoji ?? suggestExamEmoji(exam?.name ?? "")),
     [isEmojiManual, setIsEmojiManual] = useState(Boolean(exam?.emoji)),
@@ -710,7 +710,7 @@ function Editor({ exam, done, cancel, setError }: any) {
   };
   const save = async () => {
     if (!name.trim() || !questions) return setError("Informe o nome e um arquivo JSON válido.");
-    const { error } = await supabase!.rpc("save_exam", {
+    const { error } = await supabase!.rpc(editSystemExam ? "admin_save_system_exam" : "save_exam", {
       exam_name: name,
       payload: questions,
       existing_id: exam?.id ?? null,
@@ -1149,7 +1149,8 @@ function AdminPanel({ back, setError }: { back: () => void; setError: (message: 
     [allExams, setAllExams] = useState<any[]>([]),
     [allAttempts, setAllAttempts] = useState<any[]>([]),
     [expandedUserId, setExpandedUserId] = useState<string | null>(null),
-    [showSystemExams, setShowSystemExams] = useState(false);
+    [showSystemExams, setShowSystemExams] = useState(false),
+    [editingSystemExam, setEditingSystemExam] = useState<any | null>(null);
   const statsByExam = new Map<string, { count: number; last?: any }>();
   for (const attempt of allAttempts) {
     if (!attempt.prova_id) continue;
@@ -1164,7 +1165,7 @@ function AdminPanel({ back, setError }: { back: () => void; setError: (message: 
       supabase!.from("perfis").select("id, email, role").order("created_at", { ascending: false }),
       supabase!
         .from("provas")
-        .select("id, name, emoji, owner_id, is_system, created_at")
+        .select("id, name, emoji, owner_id, is_system, created_at, questoes(*)")
         .order("created_at", { ascending: false }),
       supabase!
         .from("simulados")
@@ -1216,6 +1217,14 @@ function AdminPanel({ back, setError }: { back: () => void; setError: (message: 
           </span>
         </span>
         <span className="flex gap-2">
+          {exam.is_system && (
+            <button
+              onClick={() => setEditingSystemExam(exam)}
+              className="rounded-lg border px-3 py-1 text-sm"
+            >
+              Editar
+            </button>
+          )}
           {!exam.is_system && (
             <button
               onClick={() => void publish(exam)}
@@ -1235,6 +1244,32 @@ function AdminPanel({ back, setError }: { back: () => void; setError: (message: 
     );
   };
   const systemExams = allExams.filter((exam) => exam.is_system);
+  if (editingSystemExam) {
+    return (
+      <Editor
+        exam={{
+          ...editingSystemExam,
+          questions: (editingSystemExam.questoes ?? [])
+            .sort((first: any, second: any) => first.position - second.position)
+            .map((question: any) => ({
+              id: question.id,
+              position: question.position,
+              q: question.pergunta,
+              a: question.alternativas,
+              correct: question.resposta_correta,
+              hint: question.dica,
+            })),
+        }}
+        editSystemExam
+        setError={setError}
+        done={() => {
+          setEditingSystemExam(null);
+          void loadAdminData();
+        }}
+        cancel={() => setEditingSystemExam(null)}
+      />
+    );
+  }
   return (
     <section className={box}>
       <button onClick={back} className="underline">
