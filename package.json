@@ -1,13 +1,16 @@
 {
   "name": "tanstack_start_ts",
   "private": true,
-  "sideEffects": false,
+  "sideEffects": [
+    "./src/lib/error-capture.ts"
+  ],
   "type": "module",
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
+    "deploy": "npm run build && wrangler deploy",
     "lint": "eslint .",
     "format": "prettier --write .",
     "test": "vitest run",
