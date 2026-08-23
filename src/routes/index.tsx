@@ -2167,7 +2167,7 @@ function Materials({
               selectImages(event.dataTransfer.files);
             }}
           >
-            <span className="font-semibold">Arraste imagens do Finder para cá</span>
+            <span className="font-semibold">Arraste as imagens para cá</span>
             <span className="mt-1 block text-sm text-muted-foreground">
               ou clique para selecionar várias imagens de uma vez.
             </span>
