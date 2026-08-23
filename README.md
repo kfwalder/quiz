@@ -37,7 +37,7 @@ Reordene páginas por arrastar e soltar ou pelo número de página, com rotaçã
 ## Configuração local
 
 1. Crie um projeto em [Supabase](https://supabase.com) e habilite o provedor **Email** em Authentication.
-2. No SQL Editor, execute os arquivos de `supabase/migrations` em ordem cronológica. Para instalações já existentes, execute também a nova migração `20260822200000_amigos_compartilhamento.sql`.
+2. No SQL Editor, execute os arquivos ainda pendentes de `supabase/migrations` em ordem cronológica. Em uma instalação nova, execute todos; em uma instalação existente, não execute novamente os arquivos já aplicados.
 3. Copie `.env.example` para `.env.local` e preencha a URL, a chave pública e, somente para o seed, a Service Role Key do projeto.
 4. Instale e inicie:
 
@@ -68,7 +68,11 @@ Ao enviar uma prova, o e-mail do destinatário é salvo na tabela `amigos` da co
 
 ## Materiais em PDF
 
-Execute também as migrações `supabase/migrations/20260822201000_materiais_pdf.sql`, `supabase/migrations/20260822202000_rotacao_material.sql`, `supabase/migrations/20260822204000_reordenar_paginas_material.sql`, `supabase/migrations/20260822205000_simplificar_reordenacao_material.sql` e `supabase/migrations/20260822206000_paginas_corrigidas.sql`. Elas criam as tabelas de materiais e páginas, o bucket privado `materiais` para as imagens, os campos de rotação e correção, e a operação de atualização da posição de uma única imagem. Na central, use **Gerar PDF de material** para criar um conjunto, ordenar as imagens por arrastar e soltar ou pelo número da página, girá-las, marcar páginas corrigidas e baixar o PDF.
+Os recursos de materiais dependem destas migrações, já incluídas na execução cronológica: `20260822201000_materiais_pdf.sql`, `20260822202000_rotacao_material.sql`, `20260822203000_corrigir_rotacao_nula.sql`, `20260822204000_reordenar_paginas_material.sql`, `20260822205000_simplificar_reordenacao_material.sql`, `20260822206000_paginas_corrigidas.sql` e `20260822207000_marcar_paginas_maiores_que_90_corrigidas.sql`. Elas criam as tabelas de materiais e páginas, o bucket privado `materiais`, os campos de rotação e correção, e a atualização da posição de uma única imagem.
+
+Na central, use **Gerar PDF de material** para criar um conjunto, ordenar as imagens por arrastar e soltar ou pelo número da página, girá-las, marcar páginas corrigidas e baixar o PDF.
+
+As migrações mais recentes também impedem o compartilhamento de provas globais (`20260823133000_impedir_compartilhamento_prova_global.sql`) e permitem que administradores editem provas globais (`20260823143000_admin_editar_prova_global.sql`).
 
 ## JSON de importação
 
