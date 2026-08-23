@@ -465,12 +465,14 @@ function Home({ exams, user, create, edit, start, history, materials, remove }: 
                   >
                     🕘 Histórico
                   </button>
-                  <button
-                    onClick={() => setShareExam(e)}
-                    className="w-full rounded-xl border px-4 py-2 text-left text-sm font-bold transition hover:bg-muted"
-                  >
-                    📤 Enviar prova pra amigo
-                  </button>
+                  {!e.is_system && (
+                    <button
+                      onClick={() => setShareExam(e)}
+                      className="w-full rounded-xl border px-4 py-2 text-left text-sm font-bold transition hover:bg-muted"
+                    >
+                      📤 Enviar prova pra amigo
+                    </button>
+                  )}
                   {e.owner_id === user && (
                     <>
                       <button
