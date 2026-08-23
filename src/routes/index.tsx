@@ -57,7 +57,13 @@ const date = (value: string) =>
   new Intl.DateTimeFormat("pt-BR", { dateStyle: "medium", timeStyle: "short" }).format(
     new Date(value),
   );
-const localNetworkUrl = import.meta.env.DEV
+const isLocalBrowser =
+  typeof window !== "undefined" &&
+  /^(localhost|127\.0\.0\.1|::1|10\.|192\.168\.|172\.(1[6-9]|2\d|3[0-1])\.)/.test(
+    window.location.hostname,
+  );
+// Never expose a private-network URL from the public deployment.
+const localNetworkUrl = import.meta.env.DEV && isLocalBrowser
   ? import.meta.env.VITE_LOCAL_NETWORK_URL || __LOCAL_NETWORK_URL__
   : "";
 const emojiOptions = ["📝", "🌍", "🏛️", "🔢", "📚", "🔬", "💻", "⚖️", "🩺", "🎨"];
