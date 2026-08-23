@@ -74,15 +74,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Quiz de Geografia do Brasil" },
       { name: "description", content: "Quiz interativo para estudar geografia do Brasil — com dicas para aprender errando." },
-      { property: "og:title", content: "Quiz de Geografia do Brasil" },
-      { property: "og:description", content: "Quiz interativo para estudar geografia do Brasil — com dicas para aprender errando." },
-      { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
       { name: "twitter:title", content: "Quiz de Geografia do Brasil" },
       { name: "twitter:description", content: "Quiz interativo para estudar geografia do Brasil — com dicas para aprender errando." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/24291cee-098a-4b02-859b-a199f9ad4261/id-preview-c1241c37--7d64b9a3-2b9d-4e30-b98b-c47633b77c3b.lovable.app-1778537387954.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/24291cee-098a-4b02-859b-a199f9ad4261/id-preview-c1241c37--7d64b9a3-2b9d-4e30-b98b-c47633b77c3b.lovable.app-1778537387954.png" },
     ],
     links: [
       {
