@@ -1,0 +1,84 @@
+# Central de Provas
+
+Aplicação de provas, simulados e histórico por usuário, construída com React, TanStack Start e Supabase.
+
+## Configuração local
+
+1. Crie um projeto em [Supabase](https://supabase.com) e habilite o provedor **Email** em Authentication.
+2. No SQL Editor, execute os arquivos de `supabase/migrations` em ordem cronológica. Para instalações já existentes, execute também a nova migração `20260822200000_amigos_compartilhamento.sql`.
+3. Copie `.env.example` para `.env.local` e preencha a URL, a chave pública e, somente para o seed, a Service Role Key do projeto.
+4. Instale e inicie:
+
+```bash
+npm install
+npm run seed:geography
+npm run dev
+```
+
+Para a confirmação por e-mail funcionar em outro dispositivo da rede, abra **Authentication > URL Configuration** no Supabase. Em **Redirect URLs**, adicione `http://localhost:8080/**` e o endereço de rede exibido pela aplicação, por exemplo `http://192.168.15.21:8080/**`. Defina esse endereço de rede como **Site URL** se ele for o acesso principal. O cadastro envia automaticamente o endereço atual do navegador como redirecionamento.
+
+O seed lê as 40 perguntas existentes em `src/data/quiz-geografia.ts` e cria ou atualiza a prova global **Prova de Geografia**. Nunca exponha `SUPABASE_SERVICE_ROLE_KEY` no navegador ou em um repositório.
+
+Ao enviar uma prova, o e-mail do destinatário é salvo na tabela `amigos` da conta que enviou. O destinatário precisa continuar previamente cadastrado; a aplicação valida isso a cada novo compartilhamento.
+
+## Materiais em PDF
+
+Execute também as migrações `supabase/migrations/20260822201000_materiais_pdf.sql`, `supabase/migrations/20260822202000_rotacao_material.sql`, `supabase/migrations/20260822204000_reordenar_paginas_material.sql`, `supabase/migrations/20260822205000_simplificar_reordenacao_material.sql` e `supabase/migrations/20260822206000_paginas_corrigidas.sql`. Elas criam as tabelas de materiais e páginas, o bucket privado `materiais` para as imagens, os campos de rotação e correção, e a operação de atualização da posição de uma única imagem. Na central, use **Gerar PDF de material** para criar um conjunto, ordenar as imagens por arrastar e soltar ou pelo número da página, girá-las, marcar páginas corrigidas e baixar o PDF.
+
+## JSON de importação
+
+```json
+[
+  {
+    "q": "Qual é a capital do Brasil?",
+    "a": ["Rio de Janeiro", "Brasília", "São Paulo", "Salvador"],
+    "correct": 1,
+    "hint": "Ela fica no Distrito Federal."
+  }
+]
+```
+
+Cada prova precisa ter ao menos uma questão. Cada questão exige texto, dica, exatamente quatro alternativas e `correct` entre `0` e `3`.
+
+## Manutenção
+
+Instale ou atualize as dependências:
+
+```bash
+npm install
+```
+
+Inicie a aplicação somente nesta máquina:
+
+```bash
+npm run dev
+```
+
+Inicie a aplicação acessível pela rede local, por exemplo no iPad:
+
+```bash
+npm run dev -- --host 0.0.0.0
+```
+
+Atualize a prova global de Geografia:
+
+```bash
+npm run seed:geography
+```
+
+Pare o servidor no terminal em que ele está rodando com `Ctrl+C`. Caso tenha perdido esse terminal, encontre e encerre o processo da porta `8080`:
+
+```bash
+lsof -ti tcp:8080
+kill PID
+```
+
+Substitua `PID` pelo número retornado pelo primeiro comando.
+
+## Verificações
+
+```bash
+npm test
+npx tsc --noEmit
+npm run build
+```

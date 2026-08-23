@@ -1,0 +1,192 @@
+[
+  {
+    "q": "Onde foram encontrados os fósseis mais antigos do Homo sapiens?",
+    "a": ["África", "Ásia", "Europa", "América"],
+    "correct": 0,
+    "hint": "De acordo com os registros, os fósseis mais antigos datam de 200 mil anos e foram achados no continente africano [1]."
+  },
+  {
+    "q": "Qual técnica permitiu que povos se tornassem sedentários?",
+    "a": ["Caça", "Agricultura", "Navegação", "Pesca"],
+    "correct": 1,
+    "hint": "O domínio das técnicas de cultivo (agricultura) permitiu que as populações tivessem habitação fixa [1]."
+  },
+  {
+    "q": "Onde se localiza o chamado 'Crescente Fértil'?",
+    "a": ["América Latina", "Oriente Médio", "África do Sul", "Europa Oriental"],
+    "correct": 1,
+    "hint": "Esta região, considerada o berço da civilização, fica no Oriente Médio [2]."
+  },
+  {
+    "q": "Qual rio NÃO faz parte da região do Crescente Fértil?",
+    "a": ["Nilo", "Tigre", "Amazonas", "Eufrates"],
+    "correct": 2,
+    "hint": "Os rios que irrigam o solo do Crescente Fértil são o Nilo, Tigre, Eufrates e Jordão [2]."
+  },
+  {
+    "q": "As primeiras cidades da Mesopotâmia surgiram há cerca de quantos anos?",
+    "a": ["2 mil", "5 mil", "9 mil", "15 mil"],
+    "correct": 2,
+    "hint": "O surgimento das primeiras cidades ocorreu há aproximadamente 9 mil anos, na atual Turquia [3]."
+  },
+  {
+    "q": "A teoria de Bering diz que o homem chegou à América por onde?",
+    "a": ["Pelo Alasca", "Pelo oceano Pacífico", "Pelo oceano Atlântico", "Pela Antártida"],
+    "correct": 0,
+    "hint": "Esta teoria sustenta que os habitantes cruzaram o estreito de Bering, chegando por onde hoje fica o Alasca [4]."
+  },
+  {
+    "q": "A teoria Transoceânica afirma que os primeiros habitantes vieram através de qual oceano?",
+    "a": ["Atlântico", "Índico", "Pacífico", "Glacial Ártico"],
+    "correct": 2,
+    "hint": "Segundo esta teoria, os povos saíram da Ásia e Oceania e chegaram à América do Sul pelo oceano Pacífico [5]."
+  },
+  {
+    "q": "Qual família indígena NÃO é citada como base populacional original do Rio Grande do Sul?",
+    "a": ["Tupi-guarani", "Jê", "Pampiano", "Incas"],
+    "correct": 3,
+    "hint": "As três grandes famílias citadas nas fontes são Tupi-guarani, Jê e Pampiano [6]."
+  },
+  {
+    "q": "O chimarrão e o churrasco são heranças culturais de quais povos?",
+    "a": ["Portugueses", "Indígenas", "Alemães", "Africanos"],
+    "correct": 1,
+    "hint": "Na culinária gaúcha, o chimarrão e o churrasco são legados deixados pelos indígenas [6]."
+  },
+  {
+    "q": "Em que ano foi criado o Tratado de Tordesilhas?",
+    "a": ["1500", "1494", "1822", "1889"],
+    "correct": 1,
+    "hint": "O Tratado de Tordesilhas foi assinado em 1494 para dividir as terras entre Portugal e Espanha [7]."
+  },
+  {
+    "q": "Quem administrava os aldeamentos conhecidos como Sete Povos das Missões?",
+    "a": ["Militares", "Fazendeiros", "Padres Jesuítas", "Exploradores"],
+    "correct": 2,
+    "hint": "Eram aldeamentos espanhóis administrados por padres jesuítas com o objetivo de catequizar indígenas [7]."
+  },
+  {
+    "q": "Qual dessas práticas foi proibida pelos jesuítas nas missões?",
+    "a": ["Música", "Poligamia", "Artesanato", "Agricultura"],
+    "correct": 1,
+    "hint": "A mudança cultural imposta incluiu a proibição da poligamia, da antropofagia e da magia [8]."
+  },
+  {
+    "q": "A Guerra Guaranítica ocorreu entre quais anos?",
+    "a": ["1754-1756", "1824-1830", "1500-1510", "1900-1910"],
+    "correct": 0,
+    "hint": "O conflito durou de 1754 até 1756, resultando posteriormente na expulsão dos jesuítas [8]."
+  },
+  {
+    "q": "De onde vinham os casais trazidos por Portugal para povoar o sul do Brasil?",
+    "a": ["Lisboa", "Arquipélago dos Açores", "Angola", "Itália"],
+    "correct": 1,
+    "hint": "Para proteger as terras, o governo incentivou a vinda de casais do Arquipélago dos Açores [9]."
+  },
+  {
+    "q": "Qual é considerada a maior herança portuguesa no Brasil?",
+    "a": ["A culinária", "A arquitetura", "A língua", "As festas juninas"],
+    "correct": 2,
+    "hint": "Embora existam muitos legados, a língua é apontada como a maior herança portuguesa [9]."
+  },
+  {
+    "q": "Em que ano, aproximadamente, os primeiros africanos começaram a ser trazidos para o RS?",
+    "a": ["1500", "1600", "1700", "1800"],
+    "correct": 2,
+    "hint": "Os primeiros grupos de africanos escravizados chegaram ao território gaúcho por volta do ano de 1700 [9]."
+  },
+  {
+    "q": "O que eram as 'Charqueadas'?",
+    "a": [
+      "Fazendas de produção de carne salgada",
+      "Igrejas missioneiras",
+      "Escolas de jesuítas",
+      "Portos marítimos"
+    ],
+    "correct": 0,
+    "hint": "Eram locais onde se produzia o charque, carne salgada e seca ao sol, fundamental para a economia [10]."
+  },
+  {
+    "q": "A capoeira, inicialmente uma luta de defesa, é herança de qual povo?",
+    "a": ["Indígenas", "Africanos", "Açorianos", "Japoneses"],
+    "correct": 1,
+    "hint": "A capoeira era praticada pelos povos africanos recém-chegados e hoje é uma expressão artística [10]."
+  },
+  {
+    "q": "Qual fator europeu impulsionou a imigração para a América no século XVIII/XIX?",
+    "a": ["Revolução Industrial", "Renascimento", "Descobrimento do Brasil", "Paz Mundial"],
+    "correct": 0,
+    "hint": "A Revolução Industrial gerou desemprego, fome e miséria na Europa, forçando a busca por novas terras [11]."
+  },
+  {
+    "q": "Em 1824, onde se instalaram os primeiros imigrantes alemães no RS?",
+    "a": ["Porto Alegre", "Pelotas", "São Leopoldo", "Bento Gonçalves"],
+    "correct": 2,
+    "hint": "Os primeiros imigrantes alemães chegaram em 1824 ao local onde hoje fica São Leopoldo [11]."
+  },
+  {
+    "q": "A técnica alemã de plantar vários produtos em uma mesma área chama-se:",
+    "a": ["Monocultura", "Policultura", "Hidroponia", "Latifúndio"],
+    "correct": 1,
+    "hint": "A policultura permitia uma agricultura de subsistência e proteção contra perdas de safra [12]."
+  },
+  {
+    "q": "Em que ano os primeiros imigrantes poloneses chegaram ao Rio Grande do Sul?",
+    "a": ["1824", "1875", "1904", "1924"],
+    "correct": 1,
+    "hint": "Os primeiros imigrantes poloneses desembarcaram no estado no ano de 1875 [13]."
+  },
+  {
+    "q": "Quais eram as duas autoridades mais importantes nas colônias polonesas?",
+    "a": [
+      "O Prefeito e o Juiz",
+      "O Padre e o Professor",
+      "O Médico e o Engenheiro",
+      "O Policial e o Comerciante"
+    ],
+    "correct": 1,
+    "hint": "Na organização comunitária polonesa, o padre e o professor eram as figuras centrais [14]."
+  },
+  {
+    "q": "Qual cidade gaúcha foi o primeiro povoado de colonização italiana (1875)?",
+    "a": ["Caxias do Sul", "Garibaldi", "Farroupilha", "Bento Gonçalves"],
+    "correct": 0,
+    "hint": "Caxias do Sul foi o núcleo inicial da colonização italiana no Rio Grande do Sul [15]."
+  },
+  {
+    "q": "Qual era o principal produto cultivado pelos italianos para consumo e polenta?",
+    "a": ["Trigo", "Arroz", "Milho", "Soja"],
+    "correct": 2,
+    "hint": "O milho era o cultivo principal, servindo para alimentação humana e animal [15]."
+  },
+  {
+    "q": "A Festa da Uva, tradicional da cultura italiana, ocorre em qual cidade?",
+    "a": ["Bento Gonçalves", "Caxias do Sul", "Gramado", "Santa Maria"],
+    "correct": 1,
+    "hint": "Esta celebração tradicional acontece em Caxias do Sul desde 1931 [16]."
+  },
+  {
+    "q": "Onde se localizava a Colônia Philippson, fundada por judeus em 1904?",
+    "a": ["Santa Maria", "Porto Alegre", "Erechim", "Pelotas"],
+    "correct": 0,
+    "hint": "Os primeiros imigrantes judeus instalaram-se nesta colônia, a 25 km de Santa Maria [17]."
+  },
+  {
+    "q": "Em que ano os imigrantes japoneses começaram a migrar para o RS?",
+    "a": ["1908", "1924", "1966", "1945"],
+    "correct": 1,
+    "hint": "Após a chegada ao Brasil em 1908, eles começaram a vir para o estado gaúcho em 1924 [17]."
+  },
+  {
+    "q": "Mangá e Origami são contribuições culturais de qual povo?",
+    "a": ["Chineses", "Japoneses", "Coreanos", "Italianos"],
+    "correct": 1,
+    "hint": "Estas são heranças culturais marcantes deixadas pelos imigrantes japoneses [18]."
+  },
+  {
+    "q": "O que define a arte japonesa do Origami?",
+    "a": ["Desenho em quadrinhos", "Dobradura em papel", "Arte marcial", "Culinária macrobiótica"],
+    "correct": 1,
+    "hint": "Origami é a arte milenar de dobrar papel para criar objetos e formas de animais [18]."
+  }
+]
