@@ -1266,6 +1266,7 @@ function Materials({
     [creating, setCreating] = useState(false),
     [saving, setSaving] = useState(false),
     [uploadedCount, setUploadedCount] = useState(0),
+    [loadingMaterials, setLoadingMaterials] = useState(true),
     [generatingId, setGeneratingId] = useState<string | null>(null),
     [generatingProgress, setGeneratingProgress] = useState<{ current: number; total: number } | null>(
       null,
@@ -1299,34 +1300,38 @@ function Materials({
   };
 
   const loadMaterials = async () => {
-    const { data, error } = await supabase!
-      .from("materiais")
-      .select("*, material_paginas(*)")
-      .order("created_at", { ascending: false });
-    if (error) return setError(error.message);
-    const prepared = await Promise.all(
-      (data ?? []).map(async (material: any) => {
-        const pages = await Promise.all(
-          (material.material_paginas ?? []).map(async (page: any) => {
-            const { data: signed, error: signedError } = await supabase!.storage
-              .from("materiais")
-              .createSignedUrl(page.storage_path, 60 * 60);
-            if (signedError) throw signedError;
-            return {
-              ...page,
-              rotation: page.rotation ?? 0,
-              corrected: page.corrected ?? false,
-              previewUrl: signed.signedUrl,
-            };
-          }),
-        );
-        return { ...material, pages: pages.sort((a, b) => a.position - b.position) } as Material;
-      }),
-    ).catch((error) => {
+    setLoadingMaterials(true);
+    try {
+      const { data, error } = await supabase!
+        .from("materiais")
+        .select("*, material_paginas(*)")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      const prepared = await Promise.all(
+        (data ?? []).map(async (material: any) => {
+          const pages = await Promise.all(
+            (material.material_paginas ?? []).map(async (page: any) => {
+              const { data: signed, error: signedError } = await supabase!.storage
+                .from("materiais")
+                .createSignedUrl(page.storage_path, 60 * 60);
+              if (signedError) throw signedError;
+              return {
+                ...page,
+                rotation: page.rotation ?? 0,
+                corrected: page.corrected ?? false,
+                previewUrl: signed.signedUrl,
+              };
+            }),
+          );
+          return { ...material, pages: pages.sort((a, b) => a.position - b.position) } as Material;
+        }),
+      );
+      setMaterials(prepared);
+    } catch (error) {
       setError(error instanceof Error ? error.message : "Não foi possível abrir os materiais.");
-      return [] as Material[];
-    });
-    setMaterials(prepared);
+    } finally {
+      setLoadingMaterials(false);
+    }
   };
   useEffect(() => {
     void loadMaterials();
@@ -1624,6 +1629,25 @@ function Materials({
       </div>
     </div>
   );
+
+  if (loadingMaterials) {
+    return (
+      <section className={`${box} max-w-5xl`} aria-live="polite">
+        <button onClick={back} className="underline">
+          Voltar às provas
+        </button>
+        <div className="grid min-h-72 place-items-center text-center">
+          <div>
+            <div className="mx-auto h-11 w-11 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
+            <h2 className="mt-4 text-xl font-bold">Carregando materiais</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Buscando os conjuntos e preparando as páginas.
+            </p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   if (selected) {
     return (
