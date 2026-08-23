@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Trash2 } from "lucide-react";
 import { jsPDF } from "jspdf";
+import confetti from "canvas-confetti";
 import { parseQuizJson, type ImportedQuestion } from "@/lib/quiz-schema";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
 
@@ -85,6 +86,28 @@ function suggestExamEmoji(name: string) {
   if (/(saúde|saude|medicina)/.test(normalized)) return "🩺";
   if (/(arte|música|musica)/.test(normalized)) return "🎨";
   return "📝";
+}
+
+function resultFeedback(percentage: number) {
+  if (percentage >= 80) {
+    return {
+      emoji: "🎉 🥳 ⭐ 👏",
+      message: "Parabéns! Você teve um ótimo desempenho. Continue assim!",
+    };
+  }
+  if (percentage < 30) {
+    return { emoji: "😵", message: "Não desanime. Revise o material e tente novamente com calma." };
+  }
+  if (percentage < 50) {
+    return { emoji: "😬", message: "Você está no caminho. Revise os erros e faça mais uma tentativa." };
+  }
+  if (percentage < 60) {
+    return { emoji: "🤔", message: "Bom começo. Use as dicas para entender melhor os pontos difíceis." };
+  }
+  if (percentage < 70) {
+    return { emoji: "🙂", message: "Você está evoluindo. Uma revisão a mais pode elevar sua nota." };
+  }
+  return { emoji: "😎", message: "Quase lá! Revise os detalhes e busque superar os 80%." };
 }
 
 function App() {
@@ -856,9 +879,15 @@ function Quiz({ exam, user, done, exit, setError }: any) {
     [result, setResult] = useState<{ correct: number; total: number } | null>(null);
   const savingRef = useRef(false);
   const q = qs[i];
+  const celebrateCorrectAnswer = () => {
+    const options = { particleCount: 55, spread: 65, startVelocity: 35, origin: { y: 0.72 } };
+    confetti({ ...options, angle: 60, origin: { x: 0, y: 0.72 } });
+    confetti({ ...options, angle: 120, origin: { x: 1, y: 0.72 } });
+  };
   const select = (n: number) => {
     if (pick !== null || saving) return;
     setPick(n);
+    if (n === q.correct) celebrateCorrectAnswer();
   };
   const next = async () => {
     if (pick === null || savingRef.current) return;
@@ -912,6 +941,7 @@ function Quiz({ exam, user, done, exit, setError }: any) {
   if (result) {
     const percentage = Math.round((result.correct / result.total) * 100);
     const errors = result.total - result.correct;
+    const feedback = resultFeedback(percentage);
     return (
       <section className={`${box} max-w-2xl text-center`}>
         <p className="text-sm font-semibold text-primary">Simulado concluído</p>
@@ -920,6 +950,12 @@ function Quiz({ exam, user, done, exit, setError }: any) {
         </h2>
         <p className="mt-6 text-5xl font-extrabold text-primary">{percentage}%</p>
         <p className="mt-1 text-sm text-muted-foreground">de acertos</p>
+        <p className="mt-5 text-3xl" aria-hidden="true">
+          {feedback.emoji}
+        </p>
+        <p className="mt-2 font-semibold text-foreground" aria-live="polite">
+          {feedback.message}
+        </p>
         <div className="mt-6 grid grid-cols-2 gap-3 text-left">
           <div className="rounded-2xl bg-success/15 p-4">
             <p className="text-sm font-semibold text-success">Acertos</p>
