@@ -4,6 +4,7 @@ import { Trash2 } from "lucide-react";
 import { jsPDF } from "jspdf";
 import confetti from "canvas-confetti";
 import { parseQuizJson, type ImportedQuestion } from "@/lib/quiz-schema";
+import { getAttemptPercentage, getAttemptsForUser, type AdminAttempt } from "@/lib/admin-attempts";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/")({ component: App });
@@ -26,6 +27,21 @@ type Attempt = {
   correct_count: number;
   total_questions: number;
   error_count: number;
+};
+type AttemptAnswer = {
+  id: string;
+  position: number;
+  question_text: string;
+  options: string[];
+  correct_index: number;
+  selected_index: number;
+  is_correct: boolean;
+  hint: string;
+};
+type ReviewState = {
+  title: string;
+  emptyMessage?: string;
+  answers: AttemptAnswer[];
 };
 type Friend = { email: string };
 type MaterialPage = {
@@ -1056,7 +1072,7 @@ function History({
   setError: (message: string) => void;
 }) {
   const [attempts, setAttempts] = useState<Attempt[]>([]),
-    [review, setReview] = useState<any[] | null>(null),
+    [review, setReview] = useState<ReviewState | null>(null),
     [deletingId, setDeletingId] = useState<string | null>(null);
   useEffect(() => {
     supabase!
@@ -1066,6 +1082,22 @@ function History({
       .order("completed_at", { ascending: false })
       .then(({ data, error }) => (error ? setError(error.message) : setAttempts(data ?? [])));
   }, [exam.id, setError]);
+  const loadReview = async (attemptId: string, onlyErrors: boolean) => {
+    let query = supabase!
+      .from("respostas_simulado")
+      .select("*")
+      .eq("simulado_id", attemptId)
+      .order("position");
+    if (onlyErrors) query = query.eq("is_correct", false);
+    const { data, error } = await query;
+    if (error) setError(error.message);
+    else
+      setReview({
+        title: onlyErrors ? "Revisão dos erros" : "Revisão",
+        emptyMessage: onlyErrors ? "Nenhum erro neste simulado." : undefined,
+        answers: (data ?? []) as AttemptAnswer[],
+      });
+  };
   const deleteAttempt = async (attempt: Attempt) => {
     if (!confirm(`Apagar o simulado de ${attempt.prova_nome}? Esta ação não pode ser desfeita.`))
       return;
@@ -1081,20 +1113,24 @@ function History({
         <button onClick={() => setReview(null)} className="underline">
           Voltar
         </button>
-        <h2 className="mt-4 text-xl font-bold">Revisão</h2>
-        {review.map((a: any) => (
-          <article className="mt-4 rounded-xl border p-4">
-            <b>{a.question_text}</b>
-            <p className={a.is_correct ? "text-success" : "text-destructive"}>
-              Sua resposta: {a.options[a.selected_index]}
-            </p>
-            {!a.is_correct && (
-              <p>
-                Correta: {a.options[a.correct_index]} · {a.hint}
+        <h2 className="mt-4 text-xl font-bold">{review.title}</h2>
+        {review.answers.length === 0 ? (
+          <p className="mt-4 text-muted-foreground">{review.emptyMessage ?? "Nenhuma resposta encontrada."}</p>
+        ) : (
+          review.answers.map((a) => (
+            <article key={a.id} className="mt-4 rounded-xl border p-4">
+              <b>{a.question_text}</b>
+              <p className={a.is_correct ? "text-success" : "text-destructive"}>
+                Sua resposta: {a.options[a.selected_index]}
               </p>
-            )}
-          </article>
-        ))}
+              {!a.is_correct && (
+                <p>
+                  Correta: {a.options[a.correct_index]} · {a.hint}
+                </p>
+              )}
+            </article>
+          ))
+        )}
       </section>
     );
   return (
@@ -1104,8 +1140,8 @@ function History({
       </button>
       <h2 className="mt-4 text-xl font-bold">Simulados de {exam.name}</h2>
       <div className="mt-4 space-y-3">
-        {attempts.map((a) => (
-          <article className="rounded-xl border p-4">
+        {attempts.map((a, index) => (
+          <article key={a.id} className="rounded-xl border p-4">
             <div className="flex items-start justify-between gap-3">
               <b>{a.prova_nome}</b>
               <button
@@ -1123,20 +1159,16 @@ function History({
               {date(a.completed_at)} · {a.correct_count}/{a.total_questions} acertos ·{" "}
               {a.error_count} erros
             </p>
-            <button
-              className="mt-2 underline"
-              onClick={async () => {
-                const { data, error } = await supabase!
-                  .from("respostas_simulado")
-                  .select("*")
-                  .eq("simulado_id", a.id)
-                  .order("position");
-                if (error) setError(error.message);
-                else setReview(data ?? []);
-              }}
-            >
-              Revisar respostas
-            </button>
+            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2">
+              <button className="underline" onClick={() => void loadReview(a.id, false)}>
+                Revisar respostas
+              </button>
+              {index === 0 && (
+                <button className="underline" onClick={() => void loadReview(a.id, true)}>
+                  Revisar erros
+                </button>
+              )}
+            </div>
           </article>
         ))}
       </div>
@@ -1147,8 +1179,9 @@ function History({
 function AdminPanel({ back, setError }: { back: () => void; setError: (message: string) => void }) {
   const [users, setUsers] = useState<any[]>([]),
     [allExams, setAllExams] = useState<any[]>([]),
-    [allAttempts, setAllAttempts] = useState<any[]>([]),
-    [expandedUserId, setExpandedUserId] = useState<string | null>(null),
+    [allAttempts, setAllAttempts] = useState<AdminAttempt[]>([]),
+    [expandedUserExamId, setExpandedUserExamId] = useState<string | null>(null),
+    [expandedUserAttemptId, setExpandedUserAttemptId] = useState<string | null>(null),
     [showSystemExams, setShowSystemExams] = useState(false),
     [editingSystemExam, setEditingSystemExam] = useState<any | null>(null);
   const statsByExam = new Map<string, { count: number; last?: any }>();
@@ -1169,14 +1202,24 @@ function AdminPanel({ back, setError }: { back: () => void; setError: (message: 
         .order("created_at", { ascending: false }),
       supabase!
         .from("simulados")
-        .select("user_id, prova_id, correct_count, total_questions, completed_at"),
+        .select("user_id, prova_id, completed_at, correct_count, total_questions, error_count, provas(name)"),
     ]);
     const error = profiles.error || exams.error || attempts.error;
     if (error) setError(error.message);
     else {
       setUsers(profiles.data ?? []);
       setAllExams(exams.data ?? []);
-      setAllAttempts(attempts.data ?? []);
+      setAllAttempts(
+        (attempts.data ?? []).map((attempt: any) => ({
+          user_id: attempt.user_id,
+          prova_id: attempt.prova_id,
+          prova_nome: attempt.provas?.name ?? "Prova sem nome",
+          completed_at: attempt.completed_at,
+          correct_count: attempt.correct_count,
+          total_questions: attempt.total_questions,
+          error_count: attempt.error_count,
+        })),
+      );
     }
   };
   useEffect(() => {
@@ -1294,8 +1337,9 @@ function AdminPanel({ back, setError }: { back: () => void; setError: (message: 
       <div className="mt-2 space-y-2">
         {users.map((profile) => {
           const userExams = allExams.filter((exam) => exam.owner_id === profile.id);
-          const userAttemptCount = allAttempts.filter((attempt) => attempt.user_id === profile.id).length;
-          const isExpanded = expandedUserId === profile.id;
+          const userAttempts = getAttemptsForUser(allAttempts, profile.id);
+          const isExamExpanded = expandedUserExamId === profile.id;
+          const isAttemptExpanded = expandedUserAttemptId === profile.id;
           return (
             <article key={profile.id} className="rounded-2xl border p-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
@@ -1303,26 +1347,58 @@ function AdminPanel({ back, setError }: { back: () => void; setError: (message: 
                   <b>{profile.email}</b>
                   <span className="ml-2 text-sm text-muted-foreground">{profile.role}</span>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    {userExams.length} prova(s) · {userAttemptCount} simulado(s) realizado(s)
+                    {userExams.length} prova(s) · {userAttempts.length} simulado(s) realizado(s)
                   </p>
                 </div>
-                <button
-                  type="button"
-                  aria-expanded={isExpanded}
-                  onClick={() =>
-                    setExpandedUserId((current) => (current === profile.id ? null : profile.id))
-                  }
-                  className="rounded-lg border px-3 py-2 text-sm font-bold transition hover:bg-muted"
-                >
-                  {isExpanded ? "Ocultar provas" : `Ver provas (${userExams.length})`}
-                </button>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    aria-expanded={isExamExpanded}
+                    onClick={() =>
+                      setExpandedUserExamId((current) => (current === profile.id ? null : profile.id))
+                    }
+                    className="rounded-lg border px-3 py-2 text-sm font-bold transition hover:bg-muted"
+                  >
+                    {isExamExpanded ? "Ocultar provas" : `Ver provas (${userExams.length})`}
+                  </button>
+                  <button
+                    type="button"
+                    aria-expanded={isAttemptExpanded}
+                    onClick={() =>
+                      setExpandedUserAttemptId((current) => (current === profile.id ? null : profile.id))
+                    }
+                    className="rounded-lg border px-3 py-2 text-sm font-bold transition hover:bg-muted"
+                  >
+                    {isAttemptExpanded ? "Ocultar simulados" : `Ver simulados (${userAttempts.length})`}
+                  </button>
+                </div>
               </div>
-              {isExpanded && (
+              {isExamExpanded && (
                 <div className="mt-4 space-y-2 border-t pt-4">
                   {userExams.length ? (
                     userExams.map(renderExam)
                   ) : (
                     <p className="text-sm text-muted-foreground">Nenhuma prova criada.</p>
+                  )}
+                </div>
+              )}
+              {isAttemptExpanded && (
+                <div className="mt-4 space-y-2 border-t pt-4">
+                  {userAttempts.length ? (
+                    userAttempts.map((attempt) => (
+                      <article key={`${profile.id}-${attempt.completed_at}-${attempt.prova_nome}`} className="rounded-xl border bg-card p-3">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <b>{attempt.prova_nome}</b>
+                          <span className="text-sm text-muted-foreground">{date(attempt.completed_at)}</span>
+                        </div>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                          {attempt.correct_count}/{attempt.total_questions} acertos ·{" "}
+                          {getAttemptPercentage(attempt)}% · {attempt.error_count} erros
+                        </p>
+                      </article>
+                    ))
+                  ) : (
+                    <p className="text-sm text-muted-foreground">Nenhum simulado realizado.</p>
                   )}
                 </div>
               )}
