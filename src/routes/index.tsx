@@ -3,6 +3,16 @@ import { useEffect, useRef, useState } from "react";
 import { Trash2 } from "lucide-react";
 import { jsPDF } from "jspdf";
 import confetti from "canvas-confetti";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { parseQuizJson, type ImportedQuestion } from "@/lib/quiz-schema";
 import { getAttemptPercentage, getAttemptsForUser, type AdminAttempt } from "@/lib/admin-attempts";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
@@ -891,6 +901,9 @@ function Quiz({ exam, user, done, exit, setError }: any) {
     [i, setI] = useState(0),
     [answers, setAnswers] = useState<any[]>([]),
     [pick, setPick] = useState<number | null>(null),
+    [optionsVisible, setOptionsVisible] = useState(true),
+    [optionsLocked, setOptionsLocked] = useState(false),
+    [isExitConfirmOpen, setIsExitConfirmOpen] = useState(false),
     [saving, setSaving] = useState(false),
     [result, setResult] = useState<{ correct: number; total: number } | null>(null);
   const savingRef = useRef(false);
@@ -930,6 +943,7 @@ function Quiz({ exam, user, done, exit, setError }: any) {
       setAnswers(rows);
       setI(i + 1);
       setPick(null);
+      setOptionsVisible(!optionsLocked);
       return;
     }
     savingRef.current = true;
@@ -1024,7 +1038,31 @@ function Quiz({ exam, user, done, exit, setError }: any) {
       <p className="text-sm text-muted-foreground">
         {exam.name} · questão {i + 1}/{qs.length}
       </p>
-      <h2 className="mt-4 text-xl font-bold">{q.q}</h2>
+      <div className="mt-4 flex items-start justify-between gap-3">
+        <h2 className="text-xl font-bold">{q.q}</h2>
+        <div className="flex shrink-0 gap-2">
+          <button
+            type="button"
+            aria-label={optionsVisible ? "Ocultar alternativas" : "Mostrar alternativas"}
+            aria-pressed={optionsVisible}
+            onClick={() => setOptionsVisible((visible) => !visible)}
+            className="rounded-lg border px-3 py-2 text-lg transition hover:bg-muted"
+            title={optionsVisible ? "Ocultar alternativas" : "Mostrar alternativas"}
+          >
+            {optionsVisible ? "👁️" : "🙈"}
+          </button>
+          <button
+            type="button"
+            aria-label={optionsLocked ? "Desbloquear alternativas nas próximas questões" : "Ocultar alternativas nas próximas questões"}
+            aria-pressed={optionsLocked}
+            onClick={() => setOptionsLocked((locked) => !locked)}
+            className="rounded-lg border px-3 py-2 text-lg transition hover:bg-muted"
+            title={optionsLocked ? "Desbloquear alternativas nas próximas questões" : "Ocultar alternativas nas próximas questões"}
+          >
+            {optionsLocked ? "🔒" : "🔓"}
+          </button>
+        </div>
+      </div>
       <div className="mt-5 space-y-2">
         {q.a.map((a: string, n: number) => {
           const donePick = pick !== null;
@@ -1035,7 +1073,7 @@ function Quiz({ exam, user, done, exit, setError }: any) {
               onClick={() => select(n)}
               className={`w-full rounded-xl border-2 p-4 text-left ${donePick && good ? "border-success bg-success/15" : donePick && n === pick ? "border-destructive bg-destructive/10" : ""}`}
             >
-              {a}
+              {optionsVisible ? a : `Alternativa ${n + 1}`}
             </button>
           );
         })}
@@ -1052,13 +1090,32 @@ function Quiz({ exam, user, done, exit, setError }: any) {
           </button>
         </div>
       )}
-      <button
-        disabled={saving}
-        onClick={exit}
-        className="mt-4 text-sm underline disabled:opacity-60"
-      >
-        Sair sem salvar
-      </button>
+      <Dialog open={isExitConfirmOpen} onOpenChange={setIsExitConfirmOpen}>
+        <DialogTrigger asChild>
+          <button disabled={saving} className="mt-4 text-sm underline disabled:opacity-60">
+            Sair sem salvar
+          </button>
+        </DialogTrigger>
+        <DialogContent className="rounded-3xl bg-card p-6 shadow-2xl sm:rounded-3xl">
+          <DialogHeader>
+            <DialogTitle>Deseja sair da prova?</DialogTitle>
+            <DialogDescription>
+              Suas respostas desta tentativa serão perdidas e não poderão ser recuperadas.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose asChild>
+              <button className="rounded-md border px-4 py-2 font-medium transition hover:bg-muted">Não</button>
+            </DialogClose>
+            <button
+              onClick={exit}
+              className="rounded-md bg-destructive px-4 py-2 font-medium text-destructive-foreground transition hover:bg-destructive/90"
+            >
+              Sim
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }
