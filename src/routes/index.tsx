@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Trash2 } from "lucide-react";
 import { jsPDF } from "jspdf";
 import confetti from "canvas-confetti";
+import celebrationSound from "@/sounds/comemoracao.mp3";
 import {
   Dialog,
   DialogClose,
@@ -907,9 +908,18 @@ function Quiz({ exam, user, done, exit, setError }: any) {
     [saving, setSaving] = useState(false),
     [result, setResult] = useState<{ correct: number; total: number } | null>(null);
   const savingRef = useRef(false);
+  const celebrationSoundPlayedRef = useRef(false);
   const q = qs[i];
   useEffect(() => {
-    if (!result || (result.correct / result.total) * 100 < 80) return;
+    if (
+      !result ||
+      (result.correct / result.total) * 100 < 80 ||
+      celebrationSoundPlayedRef.current
+    )
+      return;
+
+    celebrationSoundPlayedRef.current = true;
+    void new Audio(celebrationSound).play().catch(() => undefined);
 
     const celebrationEndsAt = Date.now() + 5_000;
     const timer = window.setInterval(() => {
