@@ -1035,11 +1035,10 @@ function Quiz({ exam, user, done, exit, setError }: any) {
   }
   return (
     <section className={`${box} max-w-2xl`}>
-      <p className="text-sm text-muted-foreground">
-        {exam.name} · questão {i + 1}/{qs.length}
-      </p>
-      <div className="mt-4 flex items-start justify-between gap-3">
-        <h2 className="text-xl font-bold">{q.q}</h2>
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-sm text-muted-foreground">
+          {exam.name} · questão {i + 1}/{qs.length}
+        </p>
         <div className="flex shrink-0 gap-2">
           <button
             type="button"
@@ -1063,6 +1062,7 @@ function Quiz({ exam, user, done, exit, setError }: any) {
           </button>
         </div>
       </div>
+      <h2 className="mt-4 text-xl font-bold">{q.q}</h2>
       <div className="mt-5 space-y-2">
         {q.a.map((a: string, n: number) => {
           const donePick = pick !== null;
@@ -1092,7 +1092,10 @@ function Quiz({ exam, user, done, exit, setError }: any) {
       )}
       <Dialog open={isExitConfirmOpen} onOpenChange={setIsExitConfirmOpen}>
         <DialogTrigger asChild>
-          <button disabled={saving} className="mt-4 text-sm underline disabled:opacity-60">
+          <button
+            disabled={saving}
+            className="mt-8 rounded-xl border border-destructive px-5 py-3 text-sm font-bold text-destructive transition hover:bg-destructive/10 disabled:opacity-60"
+          >
             Sair sem salvar
           </button>
         </DialogTrigger>
